@@ -2,13 +2,18 @@ import argparse
 import os
 import shutil
 
-def gen(template, vars):
+def gen(template, vars, output):
     current_path = os.path.dirname(os.path.abspath(__file__))
-    template_path = os.path.join(current_path, template)
+    if output:
+        output_path = output if os.path.isabs(output) else os.path.join(current_path, output)
+    else:
+        output_path = current_path
+
+    template_path = template if os.path.isabs(template) else os.path.join(current_path, template)
 
     if os.path.isfile(template_path):
         forder_path, file_name = os.path.split(template_path)
-        gen_code_for_file(file_name, forder_path, current_path, vars)
+        gen_code_for_file(file_name, forder_path, output_path, vars)
         return
 
     template_folder = os.path.basename(template_path)
@@ -16,13 +21,10 @@ def gen(template, vars):
     if has_var(template_folder, vars):
         new_folder = rename_file(template_folder, vars)
 
-    new_folder_path = os.path.join(current_path, new_folder)
+    new_folder_path = os.path.join(output_path, new_folder)
 
     if os.path.exists(new_folder_path):
         shutil.rmtree(new_folder_path)
-
-    print(template_path)
-    print(new_folder_path)
 
     shutil.copytree(template_path, new_folder_path)
 
@@ -38,15 +40,6 @@ def gen(template, vars):
         for directory in directories:
             new_directory = rename_file(directory, vars)
             os.rename(os.path.join(root, directory), os.path.join(root, new_directory))
-
-def copytree(src, dst, symlinks=False, ignore=None):
-    for item in os.listdir(src):
-        s = os.path.join(src, item)
-        d = os.path.join(dst, item)
-        if os.path.isdir(s):
-            shutil.copytree(s, d, symlinks, ignore)
-        else:
-            shutil.copy2(s, d)
 
 def gen_code_in_file(file_path, vars):
     fw = open(file_path, 'r+')
@@ -73,7 +66,7 @@ def gen_code_for_file(file, folder_path, out_path, vars):
     new_content, has_replacement = replace_content(content, vars)
     if has_replacement:
         fw.write(new_content)
-        print_success('Generated: ' + new_file)
+        print_success('Generated: ' + new_file_path)
     else:
         print_error('No variables matched')
 
@@ -115,16 +108,19 @@ def print_success(msg):
 def main():
     parser = argparse.ArgumentParser(description='Code Generator')
     parser.add_argument('-t', '--template', type=str, 
-        help='Select a template for code generator', 
+        help='Template for code generator', 
         required=True)
+    parser.add_argument('-o', '--output', type=str, 
+        help='Output directory. Default is', 
+        required=False)
     parser.add_argument('vars', nargs='*')
     args = parser.parse_args()
 
     template = args.template
+    output = args.output
     vars = args.vars
 
-    gen(template, parse_vars(vars))
-
+    gen(template, parse_vars(vars), output)
 
 if __name__ == '__main__':
     main()
