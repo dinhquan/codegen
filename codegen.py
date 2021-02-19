@@ -108,10 +108,10 @@ def print_success(msg):
 def main():
     parser = argparse.ArgumentParser(description='Code Generator')
     parser.add_argument('-t', '--template', type=str, 
-        help='Template for code generator', 
+        help='Template for code generator. It can be a file or folder; relative or absolute path.', 
         required=True)
     parser.add_argument('-o', '--output', type=str, 
-        help='Output directory. Default is', 
+        help='Output directory. Default is the current directory.', 
         required=False)
     parser.add_argument('vars', nargs='*')
     args = parser.parse_args()
