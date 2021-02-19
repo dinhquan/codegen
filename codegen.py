@@ -1,5 +1,6 @@
 import argparse
 import os
+import shutil
 
 def gen(template, vars):
     current_path = os.path.dirname(os.path.abspath(__file__))
@@ -10,10 +11,55 @@ def gen(template, vars):
         gen_code_for_file(file_name, forder_path, current_path, vars)
         return
 
-    files = [f for f in os.listdir(template_path) if os.path.isfile(os.path.join(template_path, f))]
-    
-    for file in files:
-        gen_code_for_file(file, template_path, current_path, vars)
+    template_folder = os.path.basename(template_path)
+    new_folder = template_folder
+    if has_var(template_folder, vars):
+        new_folder = rename_file(template_folder, vars)
+
+    new_folder_path = os.path.join(current_path, new_folder)
+
+    if os.path.exists(new_folder_path):
+        shutil.rmtree(new_folder_path)
+
+    print(template_path)
+    print(new_folder_path)
+
+    shutil.copytree(template_path, new_folder_path)
+
+    for root, _, files in os.walk(new_folder_path):
+        for file in files:
+            new_file = rename_file(file, vars)
+            file_path = os.path.join(root, file)
+            new_file_path = os.path.join(root, new_file)
+            os.rename(file_path, new_file_path)
+            gen_code_in_file(new_file_path, vars)
+
+    for root, directories, _ in os.walk(new_folder_path):
+        for directory in directories:
+            new_directory = rename_file(directory, vars)
+            os.rename(os.path.join(root, directory), os.path.join(root, new_directory))
+
+def copytree(src, dst, symlinks=False, ignore=None):
+    for item in os.listdir(src):
+        s = os.path.join(src, item)
+        d = os.path.join(dst, item)
+        if os.path.isdir(s):
+            shutil.copytree(s, d, symlinks, ignore)
+        else:
+            shutil.copy2(s, d)
+
+def gen_code_in_file(file_path, vars):
+    fw = open(file_path, 'r+')
+    content = fw.read()
+    new_content, has_replacement = replace_content(content, vars)
+    if has_replacement:
+        fw.seek(0)
+        fw.truncate()
+        fw.write(new_content)
+        print_success('Generated: ' + file_path)
+    else:
+        print_error('No variables matched')
+    fw.close()
 
 def gen_code_for_file(file, folder_path, out_path, vars):
     file_path = os.path.join(folder_path, file)
@@ -49,6 +95,13 @@ def rename_file(file_name, vars):
         append_var = '__' + var[0] + '__'
         new_name = new_name.replace(append_var, var[1])
     return new_name
+
+def has_var(file_name, vars):
+    for var in vars:
+        append_var = '__' + var[0] + '__'
+        if append_var in file_name:
+            return True
+    return False
 
 def parse_vars(vars):
     return [x.split('=') for x in vars]      
