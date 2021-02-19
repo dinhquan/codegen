@@ -25,19 +25,46 @@ Templates can be file or folder so with `codegen` you can generate code for a fi
 
 A template file can contain one or many variables. A variable must be wrap with double underscore `__<var name>__`;
 
+For example we have this file
 ```
+// File: __var1__View.tsx
+
 import React from 'react';
 import {View} from 'react-native';
 
 interface Props {
 }
 
-function __var1__(props: Props) {
+function __var1__View(props: Props) {
   return (
     <View />
   )
 }
 
-export default React.memo(__var1__);
+export default React.memo(__var1__View);
+
+```
+
+To generate code for this file, you need to execute this command:
+```
+python codegen.py -t __var1__Component.tsx var1=Article
+```
+Then you will have this file:
+```
+// File: ArticleView.tsx
+
+import React from 'react';
+import {View} from 'react-native';
+
+interface Props {
+}
+
+function ArticleView(props: Props) {
+  return (
+    <View />
+  )
+}
+
+export default React.memo(ArticleView);
 
 ```
