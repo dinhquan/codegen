@@ -2,6 +2,8 @@ import argparse
 import os
 import shutil
 
+_k_Param_FILENAME = 'FILENAME'
+
 def gen(template, vars, output):
     current_path = os.path.dirname(os.path.abspath(__file__))
     if output:
@@ -44,12 +46,16 @@ def gen(template, vars, output):
 def gen_code_in_file(file_path, vars):
     fw = open(file_path, 'r+')
     content = fw.read()
-    new_content, has_replacement = replace_content(content, vars)
+
+    _, file_name = os.path.split(file_path)
+    extra = {_k_Param_FILENAME: file_name}
+
+    new_content, has_replacement = replace_content(content, vars, extra)
     if has_replacement:
         fw.seek(0)
         fw.truncate()
         fw.write(new_content)
-        print_success('Generated: ' + file_path)
+        print_success('Generated: ' + file_name)
     else:
         print_error('No variables matched')
     fw.close()
@@ -63,41 +69,60 @@ def gen_code_for_file(file, folder_path, out_path, vars):
     new_file_path = os.path.join(out_path, new_file)
     fw = open(new_file_path, 'w')
 
-    new_content, has_replacement = replace_content(content, vars)
+    extra = {_k_Param_FILENAME: new_file}
+
+    new_content, has_replacement = replace_content(content, vars, extra)
     if has_replacement:
         fw.write(new_content)
-        print_success('Generated: ' + new_file_path)
+        print_success('Generated: ' + new_file)
     else:
         print_error('No variables matched')
 
     fr.close()
     fw.close()
 
-def replace_content(content, vars):
+def replace_content(content, vars, extra=None):
     new_content = content
     has_replacement = False
     for var in vars:
-        append_var = '__' + var[0] + '__'
+        append_var = slash_var(var[0])
         has_replacement = append_var in content
-        new_content = new_content.replace(append_var, var[1])
+        new_content = replace_var(new_content, append_var, var[1], extra)
     return new_content, has_replacement
 
 def rename_file(file_name, vars):
     new_name = file_name
     for var in vars:
-        append_var = '__' + var[0] + '__'
-        new_name = new_name.replace(append_var, var[1])
+        append_var = slash_var(var[0])
+        new_name = replace_var(new_name, append_var, var[1])
     return new_name
 
 def has_var(file_name, vars):
     for var in vars:
-        append_var = '__' + var[0] + '__'
+        append_var = slash_var(var[0])
         if append_var in file_name:
             return True
     return False
 
 def parse_vars(vars):
-    return [x.split('=') for x in vars]      
+    return [x.split('=') for x in vars]
+
+def slash_var(var):
+    if len(var) > 3 and var[:2] == '__' and var[-2:] == '__':
+        return var
+    return '__' + var + '__'
+
+def replace_var(content, var, value, extra=None):
+    if len(value) > 2 and value[:1] == '{' and value[-1:] == '}':
+        return replace_special_var(content, var, value[1:-1], extra)
+    return content.replace(var, value)
+
+def replace_special_var(content, var, value, extra=None):
+    if value == _k_Param_FILENAME and extra:
+        fileName = extra[_k_Param_FILENAME]
+        if fileName:
+            return content.replace(var, fileName)
+    return content
 
 def print_error(err):
     print('Error: ' + err)

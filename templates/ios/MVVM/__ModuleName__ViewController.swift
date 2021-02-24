@@ -1,7 +1,7 @@
 import UIKit
 
-final class __var1__ViewController: UIViewController {
-  var viewModel: __var1__ViewModel!
+final class __ModuleName__ViewController: UIViewController {
+  var viewModel: __ModuleName__ViewModel!
 
   override func viewDidLoad() {
     super.viewDidLoad()

@@ -1,6 +1,6 @@
 import RxSwift
 
-struct __var1__ViewModel {
+struct __ModuleName__ViewModel {
   struct Input {
   }
 
