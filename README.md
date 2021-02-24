@@ -39,10 +39,10 @@ Templates are required to generate code. You must create your template or use ex
 
 Templates can be a file or folder so you can generate code for a file or a group of files/folders in a folder by one command.
 
-A template file can contain one or many variables. A variable must be wrap with double underscore `__<var name>__`;
+A template file can contain one or many variables. A variable must be wrap with double underscore `__<var_name>__`;
 
 For example we have this file:
-```
+```jsx
 // File: __ComponentName__View.jsx
 
 import React from 'react';
@@ -61,7 +61,7 @@ To generate code for this file, you need to execute this command:
 python codegen.py -t templates/__ComponentName__View.jsx ComponentName=Article
 ```
 Then you will have this file:
-```
+```jsx
 // File: ArticleView.jsx
 
 import React from 'react';
