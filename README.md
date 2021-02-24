@@ -41,7 +41,7 @@ Templates can be a file or folder so you can generate code for a file or a group
 
 A template file can contain one or many variables. A variable must be wrap with double underscore `__<var_name>__`;
 
-For example we have this file:
+For example we have this template:
 ```jsx
 // File: __ComponentName__View.jsx
 
