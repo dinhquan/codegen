@@ -13,7 +13,7 @@ For example:
 python codegen.py -t templates/__ComponentName__View.jsx ComponentName=Article
 ```
 
-In this case the template is a folder, so everything inside this template will be generated:
+In the below example, the template is a folder so everything inside this template will be generated:
 ```
 python codegen.py \
   -t templates/ios/VIPER \
