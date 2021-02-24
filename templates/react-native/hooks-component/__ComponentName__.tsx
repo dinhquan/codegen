@@ -7,7 +7,7 @@ function __ComponentName__(props: Props) {
   return (
     <View>
     </View>
-  )
+  );
 }
 
 export default React.memo(__ComponentName__);

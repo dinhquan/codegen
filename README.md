@@ -6,12 +6,27 @@ Download `codegen.py` file at https://raw.githubusercontent.com/dinhquan/codegen
 
 Run this command to generate code:
 ```
-python codegen.py -t <template path> <variable_name_1>=<variable_value_1> <variable_name_2>=<variable_value_2> ...
+python codegen.py -t <template path> <variable_name_1>=<value_1> <variable_name_2>=<value_2> ...
 ```
 For example:
 ```
-python codegen.py -t templates/ios/MVVM var1=Article
+python codegen.py -t templates/__ComponentName__View.jsx ComponentName=Article
 ```
+
+In this case the template is a folder, so everything inside this template will be generated:
+```
+python codegen.py \
+  -t templates/ios/VIPER \
+  ModuleName=User \
+  FileName={FILENAME} \
+  ProjectName=MyProject \
+  UserName=Quan \
+  Date=02/01/2021 \
+  Year=2021 \
+  OrganizationName=MyCompany
+```
+
+Use `{FILENAME}` to get the current file name as the value.
 
 ## Options
     -h, --help                           Print the help text.
@@ -26,41 +41,35 @@ Templates can be a file or folder so you can generate code for a file or a group
 
 A template file can contain one or many variables. A variable must be wrap with double underscore `__<var name>__`;
 
-For example we have this file
+For example we have this file:
 ```
-// File: __var1__View.tsx
+// File: __ComponentName__View.jsx
 
 import React from 'react';
-import {View} from 'react-native';
 
-interface Props {}
-
-function __var1__View(props: Props) {
+function __ComponentName__View() {
   return (
-    <View />
-  )
+    <div/>
+  );
 }
 
-export default React.memo(__var1__View);
+export default React.memo(__ComponentName__View);
 ```
 
 To generate code for this file, you need to execute this command:
 ```
-python codegen.py -t __var1__View.tsx var1=Article
+python codegen.py -t templates/__ComponentName__View.jsx ComponentName=Article
 ```
 Then you will have this file:
 ```
-// File: ArticleView.tsx
+// File: ArticleView.jsx
 
 import React from 'react';
-import {View} from 'react-native';
 
-interface Props {}
-
-function ArticleView(props: Props) {
+function ArticleView() {
   return (
-    <View />
-  )
+    <div/>
+  );
 }
 
 export default React.memo(ArticleView);
